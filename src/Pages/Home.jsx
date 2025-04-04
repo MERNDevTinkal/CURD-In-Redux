@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addUser, updateUser, deleteUser } from "../features/curdSlice";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Home = () => {
   const [name, setName] = useState("");
@@ -8,16 +10,43 @@ const Home = () => {
   const [editMode, setEditMode] = useState(false);
   const [editUserId, setEditUserId] = useState(null);
 
+  const isValidEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const isValidName = (name) => {
+    const regex = /^[A-Za-z\s]+$/;
+    return regex.test(name);
+  };
+  
+  
   const dispatch = useDispatch();
   const users = useSelector((state) => state.user.users);
 
   const handleAddBtnClick = () => {
-    if (!name.trim() || !email.trim()) return;
+    if (!name.trim() || !email.trim()) {
+      toast.error("Name and Email are required!");
+      return;
+    }
+  
+    if (!isValidName(name)) {
+      toast.error("Name must contain only alphabets!");
+      return;
+    }
+  
+    if (!isValidEmail(email)) {
+      toast.error("Invalid email format!");
+      return;
+    }
+  
     dispatch(addUser({ id: Date.now(), name, email }));
-    console.log(users);
+    toast.success("User added successfully!");
     setName("");
     setEmail("");
   };
+  
+  
 
   const handleEdit = (user) => {
     setEditMode(true);
@@ -27,18 +56,35 @@ const Home = () => {
   };
 
   const handleUpdateBtnClick = () => {
-    if (!name.trim() || !email.trim()) return;
+    if (!name.trim() || !email.trim()) {
+      toast.error("Name and Email are required!");
+      return;
+    }
+  
+    if (!isValidName(name)) {
+      toast.error("Name must contain only alphabets!");
+      return;
+    }
+  
+    if (!isValidEmail(email)) {
+      toast.error("Invalid email format!");
+      return;
+    }
+  
     dispatch(updateUser({ id: editUserId, name, email }));
+    toast.success("User updated successfully!");
     setName("");
     setEmail("");
     setEditUserId(null);
     setEditMode(false);
   };
-
-  const handleDeleteBtnClick = (id) =>{
+  
+  
+  const handleDeleteBtnClick = (id) => {
     dispatch(deleteUser(id));
-
-  } 
+    toast.info("User deleted!");
+  };
+  
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100 p-4">
@@ -64,14 +110,14 @@ const Home = () => {
           {editMode ? (
             <button
               onClick={handleUpdateBtnClick}
-              className="bg-yellow-600 text-white py-2 w-full rounded-xl"
+              className="bg-yellow-600 text-white py-2 w-full rounded-xl cursor-pointer  "
             >
               Update
             </button>
           ) : (
             <button
               onClick={handleAddBtnClick}
-              className="bg-blue-600 text-white py-2 w-full rounded-xl"
+              className="bg-blue-600 text-white py-2 w-full rounded-xl cursor-pointer"
             >
               Add
             </button>
@@ -97,13 +143,13 @@ const Home = () => {
               </div>
               <div className="flex justify-center gap-3">
                 <button
-                  className="bg-yellow-500 text-white px-4 py-1 rounded-xl hover:bg-yellow-600 transition-all duration-300"
+                  className="bg-yellow-500 text-white cursor-pointer px-4 py-1 rounded-xl hover:bg-yellow-600 transition-all duration-300"
                   onClick={() => handleEdit(user)}
                 >
                   Edit
                 </button>
 
-                <button className="bg-red-500 text-white px-4 py-1 rounded-xl hover:bg-red-600 transition-all duration-300"
+                <button className="bg-red-500 cursor-pointer text-white px-4 py-1 rounded-xl hover:bg-red-600 transition-all duration-300"
                 onClick={() => handleDeleteBtnClick(user.id)}
                 >
                   Delete
